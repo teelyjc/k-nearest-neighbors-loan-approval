@@ -1,7 +1,15 @@
 import fs from "fs";
 import path from "path";
 
-export function getFromDataset(pathname: string) {
+export async function getFromDataset(pathname: string) {
+  // fixed vercel host
+  if (pathname.startsWith("/")) {
+    const out = await fetch(pathname);
+    const text = await out.text();
+
+    return text.split(/\r?\n/);
+  }
+
   const out = fs.readFileSync(path.join(process.cwd(), pathname), "utf-8");
   return out.split(/\r?\n/);
 }
