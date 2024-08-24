@@ -7,7 +7,7 @@ export async function getLoanLength() {
   let approved = 0;
   let rejected = 0;
 
-  const out = getFromDataset("public/loan-approval-dataset.csv");
+  const out = getFromDataset("/public/loan-approval-dataset.csv");
   const dataStack = getDataStack(out);
 
   dataStack.forEach((row) => {

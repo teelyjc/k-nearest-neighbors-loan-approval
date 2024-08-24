@@ -24,7 +24,7 @@ export async function getPredict(values: z.infer<typeof inquirySchema>) {
     undefined
   );
 
-  const out = getFromDataset("public/loan-approval-dataset.csv");
+  const out = getFromDataset("/public/loan-approval-dataset.csv");
   const dataStack = getDataStack(out);
 
   dataStack.forEach((row) =>
