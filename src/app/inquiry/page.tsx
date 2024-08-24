@@ -55,16 +55,16 @@ const InquiryPage: NextPage = () => {
   const form = useForm<z.infer<typeof inquirySchema>>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
-      education: Education.NotGraduate,
+      education: Education.Graduate,
       selfEmployed: true,
-      incomeAnnum: 120000,
-      loanAmount: 5000000,
-      loanTerm: 48,
-      cibilScore: 300,
-      residentialAssetsValue: 520000,
-      commercialAssetsValue: 15000,
-      luxuryAssetsValue: 70000,
-      bankAssetValue: 80000,
+      incomeAnnum: 0,
+      loanAmount: 0,
+      loanTerm: 0,
+      cibilScore: 0,
+      residentialAssetsValue: 0,
+      commercialAssetsValue: 0,
+      luxuryAssetsValue: 0,
+      bankAssetValue: 0,
     },
   });
 
