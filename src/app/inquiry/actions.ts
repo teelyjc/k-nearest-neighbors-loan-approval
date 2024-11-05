@@ -7,104 +7,307 @@ import { getDifference, getEuclidean } from "@/libs/k-nearest-neighbors";
 import { getDataStack, getFromDataset } from "@/libs/serializer";
 
 export async function getPredict(values: z.infer<typeof inquirySchema>) {
-  const approvements = new Array<LoanApproval>();
-  const userApprovement = new LoanApproval(
-    "",
-    0,
-    values.education,
-    values.selfEmployed,
-    values.incomeAnnum,
-    values.loanAmount,
-    values.loanTerm,
-    values.cibilScore,
-    values.residentialAssetsValue,
-    values.commercialAssetsValue,
-    values.luxuryAssetsValue,
-    values.bankAssetValue,
-    undefined
-  );
+  const {
+    cibilScore,
+    luxuryAssetsValue,
+    loanAmount,
+    incomeAnnum,
+    loanTerm,
+    residentialAssetsValue,
+    commercialAssetsValue,
+    bankAssetValue,
+    selfEmployed,
+    education,
+  } = values;
 
-  const out = getFromDataset("/public", "/loan-approval-dataset.csv");
-  const dataStack = getDataStack(out);
-
-  dataStack.forEach((row) =>
-    approvements.push(
-      new LoanApproval(
-        row[0],
-        parseFloat(row[1]),
-        LoanApproval.parseEducation(row[2]),
-        LoanApproval.parseYesNoToBoolean(row[3]),
-        parseFloat(row[4]),
-        parseFloat(row[5]),
-        parseFloat(row[6]),
-        parseFloat(row[7]),
-        parseFloat(row[8]),
-        parseFloat(row[9]),
-        parseFloat(row[10]),
-        parseFloat(row[11]),
-        LoanApproval.parseApprovement(row[12])
-      )
-    )
-  );
-
-  approvements.forEach((appr) => {
-    const userGraduate: number =
-      userApprovement.getEducation() === Education.Graduate ? 1 : 0;
-    const dataGraduate: number =
-      appr.getEducation() === Education.Graduate ? 1 : 0;
-
-    const userSelfEmployed: number = userApprovement.getSelfEmployed() ? 1 : 0;
-    const dataSelfEmployed: number = appr.getSelfEmployed() ? 1 : 0;
-
-    appr.setSpacing(
-      getEuclidean([
-        getDifference(userGraduate, dataGraduate),
-        getDifference(userSelfEmployed, dataSelfEmployed),
-        getDifference(userApprovement.getIncomeAnnum(), appr.getIncomeAnnum()),
-        getDifference(userApprovement.getLoanAmount(), appr.getLoanAmount()),
-        getDifference(userApprovement.getLoanTerm(), appr.getLoanTerm()),
-        getDifference(userApprovement.getCibilScore(), appr.getCibilScore()),
-        getDifference(
-          userApprovement.getResidentialAssetsValue(),
-          appr.getResidentialAssetsValue()
-        ),
-        getDifference(
-          userApprovement.getCommercialAssetsValue(),
-          appr.getCommercialAssetsValue()
-        ),
-        getDifference(
-          userApprovement.getLaxuryAssetsValue(),
-          appr.getLaxuryAssetsValue()
-        ),
-        getDifference(
-          userApprovement.getBankAssetValue(),
-          appr.getBankAssetValue()
-        ),
-      ])
-    );
-  });
-
-  let approved = 0;
-  let rejected = 0;
-
-  approvements
-    .sort((a, b) => {
-      return a.getSpacing()! - b.getSpacing()!;
-    })
-    .slice(0, 3)
-    .forEach((appr) => {
-      if (appr.getLoanStatus() === LoanStatus.Approved) {
-        approved += appr.getSpacing()!;
+  if (luxuryAssetsValue < 7150000) {
+    if (loanTerm < 5) {
+      if (residentialAssetsValue < 750000) {
+        if (loanAmount < 850000) {
+          if (residentialAssetsValue < 550000) {
+            if (cibilScore < 484.5)
+              return {
+                status: LoanStatus.Rejected,
+              };
+            else
+              return {
+                status: LoanStatus.Approved,
+              };
+          } else
+            return {
+              status: LoanStatus.Rejected,
+            };
+        } else {
+          if (cibilScore < 559) {
+            if (incomeAnnum < 450000)
+              return {
+                status: LoanStatus.Approved,
+              };
+            else {
+              if (cibilScore < 427)
+                return {
+                  status: LoanStatus.Rejected,
+                };
+              else {
+                if (incomeAnnum < 1500000) {
+                  if (loanAmount < 1450000)
+                    return {
+                      status: LoanStatus.Rejected,
+                    };
+                  else
+                    return {
+                      status: LoanStatus.Approved,
+                    };
+                } else
+                  return {
+                    status: LoanStatus.Rejected,
+                  };
+              }
+            }
+          } else {
+            if (commercialAssetsValue < 150000) {
+              if (incomeAnnum < 750000)
+                return {
+                  status: LoanStatus.Approved,
+                };
+              else {
+                if (loanTerm < 3)
+                  return {
+                    status: LoanStatus.Approved,
+                  };
+                else
+                  return {
+                    status: LoanStatus.Rejected,
+                  };
+              }
+            } else
+              return {
+                status: LoanStatus.Approved,
+              };
+          }
+        }
+      } else {
+        if (cibilScore < 547) {
+          if (cibilScore < 493) {
+            if (bankAssetValue < 4050000) {
+              if (bankAssetValue < 2450000) {
+                if (bankAssetValue < 2350000) {
+                  if (commercialAssetsValue < 550000) {
+                    if (cibilScore < 356)
+                      return {
+                        status: LoanStatus.Approved,
+                      };
+                    else {
+                      if (bankAssetValue < 2250000)
+                        return {
+                          status: LoanStatus.Rejected,
+                        };
+                      else
+                        return {
+                          status: LoanStatus.Approved,
+                        };
+                    }
+                  } else {
+                    if (incomeAnnum < 1700000) {
+                      if (loanAmount < 1850000) {
+                        if (cibilScore < 413.5)
+                          return {
+                            status: LoanStatus.Rejected,
+                          };
+                        else
+                          return {
+                            status: LoanStatus.Approved,
+                          };
+                      } else
+                        return {
+                          status: LoanStatus.Approved,
+                        };
+                    } else {
+                      if (bankAssetValue < 1550000) {
+                        if (commercialAssetsValue < 850000)
+                          return {
+                            status: LoanStatus.Approved,
+                          };
+                        else
+                          return {
+                            status: LoanStatus.Rejected,
+                          };
+                      } else
+                        return {
+                          status: LoanStatus.Approved,
+                        };
+                    }
+                  }
+                } else
+                  return {
+                    status: LoanStatus.Rejected,
+                  };
+              } else
+                return {
+                  status: LoanStatus.Approved,
+                };
+            } else
+              return {
+                status: LoanStatus.Rejected,
+              };
+          } else {
+            if (residentialAssetsValue < 2600000) {
+              if (loanAmount < 1750000)
+                return {
+                  status: LoanStatus.Rejected,
+                };
+              else {
+                if (selfEmployed === false)
+                  return {
+                    status: LoanStatus.Approved,
+                  };
+                else {
+                  if (education === "Graduate")
+                    return {
+                      status: LoanStatus.Rejected,
+                    };
+                  else
+                    return {
+                      status: LoanStatus.Approved,
+                    };
+                }
+              }
+            } else
+              return {
+                status: LoanStatus.Rejected,
+              };
+          }
+        } else
+          return {
+            status: LoanStatus.Approved,
+          };
       }
-
-      if (appr.getLoanStatus() === LoanStatus.Rejected) {
-        rejected += appr.getSpacing()!;
+    } else {
+      if (cibilScore < 549.5)
+        return {
+          status: LoanStatus.Rejected,
+        };
+      else {
+        if (bankAssetValue < 250000) {
+          if (luxuryAssetsValue < 750000) {
+            if (commercialAssetsValue < 150000) {
+              if (cibilScore < 605.5)
+                return {
+                  status: LoanStatus.Rejected,
+                };
+              else {
+                if (incomeAnnum < 250000) {
+                  if (residentialAssetsValue < 100000) {
+                    if (loanAmount < 600000)
+                      return {
+                        status: LoanStatus.Rejected,
+                      };
+                    else
+                      return {
+                        status: LoanStatus.Approved,
+                      };
+                  } else
+                    return {
+                      status: LoanStatus.Approved,
+                    };
+                } else
+                  return {
+                    status: LoanStatus.Rejected,
+                  };
+              }
+            } else
+              return {
+                status: LoanStatus.Approved,
+              };
+          } else
+            return {
+              status: LoanStatus.Approved,
+            };
+        } else {
+          if (residentialAssetsValue < 950000) {
+            if (incomeAnnum < 1750000) {
+              if (loanAmount < 3150000)
+                return {
+                  status: LoanStatus.Approved,
+                };
+              else {
+                if (loanAmount < 3250000) {
+                  if (education === "Graduate")
+                    return {
+                      status: LoanStatus.Rejected,
+                    };
+                  else
+                    return {
+                      status: LoanStatus.Approved,
+                    };
+                } else
+                  return {
+                    status: LoanStatus.Approved,
+                  };
+              }
+            } else {
+              if (commercialAssetsValue < 1750000) {
+                if (loanAmount < 6800000)
+                  return {
+                    status: LoanStatus.Approved,
+                  };
+                else
+                  return {
+                    status: LoanStatus.Rejected,
+                  };
+              } else
+                return {
+                  status: LoanStatus.Approved,
+                };
+            }
+          } else
+            return {
+              status: LoanStatus.Approved,
+            };
+        }
       }
-    });
-
-  return {
-    approved,
-    rejected,
-    status: approved > rejected ? "approved" : "rejected",
-  };
+    }
+  } else {
+    if (loanTerm < 5) {
+      if (bankAssetValue < 12950000) {
+        if (incomeAnnum < 2450000) {
+          if (commercialAssetsValue < 150000)
+            return {
+              status: LoanStatus.Rejected,
+            };
+          else {
+            if (selfEmployed === false) {
+              if (luxuryAssetsValue < 8400000) {
+                if (education === "Graduate")
+                  return {
+                    status: LoanStatus.Rejected,
+                  };
+                else {
+                  if (incomeAnnum < 2150000) {
+                    if (incomeAnnum < 2050000)
+                      return {
+                        status: LoanStatus.Approved,
+                      };
+                    else
+                      return {
+                        status: LoanStatus.Rejected,
+                      };
+                  } else
+                    return {
+                      status: LoanStatus.Approved,
+                    };
+                }
+              } else
+                return {
+                  status: LoanStatus.Rejected,
+                };
+            } else
+              return {
+                status: LoanStatus.Approved,
+              };
+          }
+        }
+      }
+    }
+  }
 }

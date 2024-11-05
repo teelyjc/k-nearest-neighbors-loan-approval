@@ -48,8 +48,6 @@ const InquiryPage: NextPage = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [result, setResult] = useState({
     status: "",
-    approved: 0,
-    rejected: 0,
   });
 
   const form = useForm<z.infer<typeof inquirySchema>>({
@@ -71,8 +69,9 @@ const InquiryPage: NextPage = () => {
   async function onInquirySubmit(values: z.infer<typeof inquirySchema>) {
     setSubmitting(true);
 
-    const { approved, rejected, status } = await getPredict(values);
-    setResult({ approved, rejected, status });
+    const prediction = await getPredict(values);
+    prediction && setResult({ status: prediction.status });
+    // setResult({ status });
 
     await wait(() => {}, 2 * 1000);
     setSubmitting(false);
@@ -88,7 +87,7 @@ const InquiryPage: NextPage = () => {
               <span
                 className={clsx([
                   "font-semibold",
-                  result.status === "approved"
+                  result.status === "Approved"
                     ? "text-green-500"
                     : "text-red-500",
                 ])}
@@ -96,15 +95,11 @@ const InquiryPage: NextPage = () => {
                 {capitalize(result.status)}
               </span>
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              Approved rate is {result.approved.toFixed(2)} <br />
-              and Rejected rate is {result.rejected.toFixed(2)}
-            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() =>
-                setResult({ approved: 0, rejected: 0, status: "" })
+                setResult({ status: "" })
               }
             >
               Close
