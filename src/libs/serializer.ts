@@ -1,11 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-export function getFromDataset(pathname: string, filename: string) {
-  const out = fs.readFileSync(
-    path.join(process.cwd(), pathname, filename),
-    "utf-8"
-  );
+export function getFromDataset(pathname: string) {
+  const out = fs.readFileSync(path.join(process.cwd(), pathname), "utf-8");
   return out.split(/\r?\n/);
 }
 
